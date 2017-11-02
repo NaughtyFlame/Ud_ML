@@ -22,6 +22,15 @@ data_dict = pickle.load(open("../final_project/final_project_dataset.pkl", "r") 
 ### first element is our labels, any added elements are predictor
 ### features. Keep this the same for the mini-project, but you'll
 ### have a different feature list when you do the final project.
+
+# fonctions
+
+def accuracy_score(truth, pred):
+    if len(truth) == len(pred):
+        return "accuracy: {}".format((truth == pred).mean()*100)
+    else:
+        return "Number of predictions does not match number of outcomes!"
+
 features_list = ["poi", "salary"]
 
 data = featureFormat(data_dict, features_list)
@@ -38,5 +47,16 @@ predictions = clf.predict(features_test)
 
 print "POIs : {}".format(len(predictions[predictions == 1]))
 print "Total People: {}".format(len(predictions))
+
+# Q7 : true positive
+print "True Positive: ",sum(predictions * labels_test)
+
+# Q8 precision score
+from sklearn.metrics import precision_score
+print "precision score: ",precision_score(labels_test, predictions)
+
+# Q9 recall score
+from sklearn.metrics import recall_score
+print "recall score: ", recall_score(labels_test, predictions)
 
 # print "score: {}".format(clf.score(features_test, labels_test))
