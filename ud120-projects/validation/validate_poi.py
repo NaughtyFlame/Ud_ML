@@ -34,4 +34,9 @@ features_train, features_test, labels_train, labels_test = train_test_split(
 clf = tree.DecisionTreeClassifier()
 clf.fit(features_train, labels_train)
 
-print "score: {}".format(clf.score(features_test, labels_test))
+predictions = clf.predict(features_test)
+
+print "POIs : {}".format(len(predictions[predictions == 1]))
+print "Total People: {}".format(len(predictions))
+
+# print "score: {}".format(clf.score(features_test, labels_test))
