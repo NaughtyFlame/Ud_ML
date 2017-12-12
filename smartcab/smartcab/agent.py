@@ -8,7 +8,7 @@ class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
         This is the object you will be modifying. """
 
-    def __init__(self, env, learning=False, epsilon=1.0, alpha=0.4):
+    def __init__(self, env, learning=False, epsilon=1.0, alpha=0.5):
         super(LearningAgent, self).__init__(env)     # Set the agent in the evironment
         self.planner = RoutePlanner(self.env, self)  # Create a route planner
         self.valid_actions = self.env.valid_actions  # The set of valid actions
@@ -40,7 +40,8 @@ class LearningAgent(Agent):
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
         # y = (100-1.01^x)/100
-        self.epsilon *= 0.99
+        self.epsilon = 0.99**(self.t)
+        self.alpha = 0.4 + self.epsilon/10
         self.t +=1
 
         return None
@@ -147,11 +148,11 @@ class LearningAgent(Agent):
 
         # use following function to update q value
         # Q(S,A) - (1-alpha)*Q(S,A) + alpha*[R + gamma*maxQ(S',a)]
-        # gamma = 1
+        # gamma = 0
 
-        Q_next = self.get_maxQ(state) # tuple (action , qvalue)
+        # Q_next = self.get_maxQ(state) # tuple (action , qvalue)
         Q_actual = self.Q[state][action] # qvalue
-        self.Q[state][action] = (1-self.alpha)*Q_actual + self.alpha*(reward + Q_next[1])
+        self.Q[state][action] = (1-self.alpha)*Q_actual + self.alpha*(reward)
 
         return
 
