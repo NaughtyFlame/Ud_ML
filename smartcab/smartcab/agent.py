@@ -39,9 +39,10 @@ class LearningAgent(Agent):
         # Update epsilon using a decay function of your choice
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
-        # y = (100-1.01^x)/100
-        self.epsilon = 0.99**(self.t)
-        self.alpha = 0.4 + self.epsilon/10
+
+        # self.epsilon *= 0.995
+        self.epsilon = math.cos(float(self.t)/500)
+        self.alpha = 0.5
         self.t +=1
 
         return None
@@ -77,11 +78,7 @@ class LearningAgent(Agent):
         ###########
         # Calculate the maximum Q-value of all actions for a given state
 
-        maxQ = None
-
-        for key, value in self.Q[state].items():
-            if maxQ == None or value > maxQ[1]:
-                maxQ = (key, value)
+        maxQ = max(self.Q[state].values())
 
         return maxQ
 
@@ -96,13 +93,8 @@ class LearningAgent(Agent):
         # If it is not, create a new dictionary for that state
         #   Then, for each action available, set the initial Q-value to 0.0
 
-        if state not in self.Q.keys():
-            initial_Q_value = dict()
-            initial_Q_value['right'] = 0
-            initial_Q_value['left'] = 0
-            initial_Q_value['forward'] = 0
-            initial_Q_value[None] = 0
-            self.Q[state] = initial_Q_value
+        if self.learning:
+            self.Q.setdefault(state, {action: 0.0 for action in self.valid_actions})
 
         return
 
@@ -120,17 +112,19 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # When not learning, choose a random action
-        action_list = [None, 'left', 'right', 'forward']
         # When learning, choose a random action with 'epsilon' probability
         #   Otherwise, choose an action with the highest Q-value for the current state
 
         probability = random.random()
-        if probability < self.epsilon:
-            random_action_index = random.randint(0,3)
-            action = action_list[random_action_index]
+        if not self.learning:
+            action = random.choice(self.valid_actions)
         else:
-            maxQ = self.get_maxQ(state)
-            action = maxQ[0]
+            if self.epsilon > probability:
+                action = random.choice(self.valid_actions)
+            else:
+                maxQ = self.get_maxQ(state)
+                action_maximum = [action for action, Q in self.Q[state].iteritems() if Q == maxQ]
+                action = random.choice(action_maximum)
 
         return action
 
@@ -204,14 +198,14 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0.01, log_metrics=True, optimized=True)
+    sim = Simulator(env, update_delay=0.0, display=True, log_metrics=True, optimized=True)
 
     ##############
     # Run the simulator
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(tolerance=0.01, n_test=20)
+    sim.run(tolerance=0.005, n_test=20)
 
 
 if __name__ == '__main__':
